@@ -8,18 +8,29 @@ import {
   IonContent,
   IonHeader,
   IonInput,
-  IonItem,
-  IonText,
   IonTitle,
   IonToolbar,
 } from "@ionic/react";
-import { useContext, useState } from "react";
-import { AppContext } from "../context/AppContext";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+const RegisterSchema = z.object({
+  name: z.string().min(3, "Name must contain at least 3 characters"),
+  email: z.string().email(),
+  password: z.string().min(6, "Password must contain at least 6 characters"),
+});
 
 const FormPage = () => {
-  const { user, setUser } = useContext(AppContext);
-  const [name, setName] = useState(user.name);
-  const [age, setAge] = useState(user.age);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({ resolver: zodResolver(RegisterSchema) });
+
+  function onSubmit(data: any) {
+    console.log(data);
+  }
   return (
     <>
       <IonHeader>
@@ -29,51 +40,58 @@ const FormPage = () => {
       </IonHeader>
       <IonContent>
         <div className="content">
-          <div
-            style={{
-              margin: "15px",
-              width: "100%",
-              padding: "0px 15px",
-              border: "solid",
-              borderColor: "grey",
-              borderRadius: "10px",
-              borderWidth: "1px",
-            }}
-          >
-            <IonText color="primary">
-              <h3>{`Name: ${user.name}, Age: ${user.age}`}</h3>
-            </IonText>
-          </div>
-
           <IonCard style={{ margin: "15px", width: "100%" }}>
             <IonCardHeader className="ion-padding">
-              <IonCardTitle>Update Info</IonCardTitle>
+              <IonCardTitle>Register</IonCardTitle>
               <IonCardSubtitle>Fill in your information</IonCardSubtitle>
             </IonCardHeader>
 
             <IonCardContent>
-              <IonInput
-                label="Full Name"
-                labelPlacement="stacked"
-                placeholder="John Doe"
-                value={name}
-                onIonChange={(e) => setName(e.target.value?.toString() || "")}
-              ></IonInput>
-              <IonInput
-                label="Age"
-                labelPlacement="stacked"
-                               placeholder="20"
-                value={age}
-                onIonChange={(e) => setAge(Number(e.target.value) || 0)}
-              ></IonInput>
+              <form onSubmit={handleSubmit(onSubmit)}>
+                <div>
+                  <IonInput
+                    label="Name"
+                    labelPlacement="stacked"
+                    placeholder="John Doe"
+                    {...register("name")}
+                  ></IonInput>
+                  {errors.name && (
+                    <p style={{ color: "red", fontSize: "12px" }}>
+                      {errors.name.message}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <IonInput
+                    label="Email"
+                    labelPlacement="stacked"
+                    placeholder="johndoe@mail.com"
+                    {...register("email")}
+                  ></IonInput>
+                  {errors.email && (
+                    <p style={{ color: "red", fontSize: "12px" }}>
+                      {errors.email.message}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <IonInput
+                    label="Password"
+                    labelPlacement="stacked"
+                    type="password"
+                    {...register("password")}
+                  ></IonInput>
+                  {errors.password && (
+                    <p style={{ color: "red", fontSize: "12px" }}>
+                      {errors.password.message}
+                    </p>
+                  )}
+                </div>
+                <IonButton type="submit">Submit</IonButton>
+              </form>
             </IonCardContent>
 
-            <IonButton
-              style={{ margin: "15px" }}
-              onClick={() => setUser({ name: name, age: age })}
-            >
-              Submit
-            </IonButton>
+            {/* <IonButton style={{ margin: "15px" }}>Submit</IonButton> */}
           </IonCard>
         </div>
       </IonContent>

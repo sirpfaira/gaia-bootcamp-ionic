@@ -9,10 +9,11 @@ import {
   IonLabel,
 } from "@ionic/react";
 import { Route, Redirect } from "react-router";
-import { home, documentTextOutline } from "ionicons/icons";
+import { home, documentTextOutline, camera } from "ionicons/icons";
 
 import HomePage from "./pages/Home";
 import FormPage from "./pages/Form";
+import CameraPage from "./pages/Camera";
 import "./index.css";
 
 /* Core CSS required for Ionic components to work properly */
@@ -44,35 +45,37 @@ import "@ionic/react/css/palettes/dark.system.css";
 
 /* Theme variables */
 import "./theme/variables.css";
-import { AppProvider } from "./context/AppContext";
 
 setupIonicReact();
 
 const App: React.FC = () => (
-  <AppProvider>
-    <IonApp>
-      <IonReactRouter>
-        <IonTabs>
-          <IonRouterOutlet>
-            <Redirect exact path="/" to="/home" />
-            <Route path="/home" render={() => <HomePage />} exact={true} />
-            <Route path="/form" render={() => <FormPage />} exact={true} />
-          </IonRouterOutlet>
+  <IonApp>
+    <IonReactRouter>
+      <IonTabs>
+        <IonRouterOutlet>
+          <Redirect exact path="/" to="/home" />
+          <Route path="/home" render={() => <HomePage />} exact={true} />
+          <Route path="/form" render={() => <FormPage />} exact={true} />
+          <Route path="/camera" render={() => <CameraPage />} exact={true} />
+        </IonRouterOutlet>
 
-          <IonTabBar slot="bottom">
-            <IonTabButton tab="home" href="/home">
-              <IonIcon icon={home} />
-              <IonLabel>Home</IonLabel>
-            </IonTabButton>
-            <IonTabButton tab="form" href="/form">
-              <IonIcon icon={documentTextOutline} />
-              <IonLabel>Form</IonLabel>
-            </IonTabButton>
-          </IonTabBar>
-        </IonTabs>
-      </IonReactRouter>
-    </IonApp>
-  </AppProvider>
+        <IonTabBar slot="bottom">
+          <IonTabButton tab="home" href="/home">
+            <IonIcon icon={home} />
+            <IonLabel>Virtuoso</IonLabel>
+          </IonTabButton>
+          <IonTabButton tab="form" href="/form">
+            <IonIcon icon={documentTextOutline} />
+            <IonLabel>Form</IonLabel>
+          </IonTabButton>
+          <IonTabButton tab="camera" href="/camera">
+            <IonIcon icon={camera} />
+            <IonLabel>Camera</IonLabel>
+          </IonTabButton>
+        </IonTabBar>
+      </IonTabs>
+    </IonReactRouter>
+  </IonApp>
 );
 
 export default App;

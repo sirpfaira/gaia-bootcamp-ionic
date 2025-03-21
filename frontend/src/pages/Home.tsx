@@ -1,59 +1,68 @@
 import {
   IonContent,
   IonHeader,
+  IonIcon,
   IonItem,
-  IonLabel,
-  IonList,
   IonText,
   IonTitle,
   IonToolbar,
 } from "@ionic/react";
+import { Virtuoso } from "react-virtuoso";
 import axios from "axios";
-import { useContext, useEffect, useState } from "react";
-import { AppContext } from "../context/AppContext";
+import { useEffect, useState } from "react";
+import { person } from "ionicons/icons";
 
-type Post = {
-  body: string;
+type Comment = {
+  postId: number;
   id: number;
-  title: string;
-  userId: number;
+  name: string;
+  email: string;
+  body: string;
 };
 
 const HomePage = () => {
-  const { user } = useContext(AppContext);
-  const [posts, setPosts] = useState<Post[]>([]);
+  const [comments, setComments] = useState<Comment[]>([]);
 
   useEffect(() => {
-    async function fetchPosts() {
+    async function fetchComments() {
       await axios
-        .get("https://jsonplaceholder.typicode.com/posts")
-        .then((response) => setPosts(response.data))
+        .get("https://jsonplaceholder.typicode.com/comments")
+        .then((response) => setComments(response.data))
         .catch((error) => console.error(error));
     }
-    fetchPosts();
+    fetchComments();
   }, []);
   return (
     <>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Home</IonTitle>
+          <IonTitle>Virtuoso</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent>
-        {user && (
-          <IonItem style={{ marginBottom: "5px" }}>
-            <IonText color="primary">
-              <h3>{`Good day, ${user.name}`}</h3>
-            </IonText>
-          </IonItem>
-        )}
-        <IonList>
-          {posts.slice(0, 10).map((item) => (
-            <IonItem key={item.id}>
-              <IonLabel>{item.title}</IonLabel>
+        <Virtuoso
+          style={{ height: "100%" }}
+          totalCount={comments.length}
+          itemContent={(index) => (
+            <IonItem key={comments[index].id}>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  padding: "15px",
+                }}
+              >
+                <div style={{ display: "flex" }}>
+                  <IonIcon icon={person} color="primary" />
+                  <IonText color="secondary" style={{ marginLeft: "5px" }}>
+                    {comments[index].email}
+                  </IonText>
+                </div>
+                <IonText>{comments[index].body}</IonText>
+              </div>
             </IonItem>
-          ))}
-        </IonList>
+          )}
+        />
       </IonContent>
     </>
   );
