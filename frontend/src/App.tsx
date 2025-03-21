@@ -44,33 +44,35 @@ import "@ionic/react/css/palettes/dark.system.css";
 
 /* Theme variables */
 import "./theme/variables.css";
+import { AppProvider } from "./context/AppContext";
 
 setupIonicReact();
 
 const App: React.FC = () => (
-  <IonApp>
-    <IonReactRouter>
-      <IonTabs>
-        <IonRouterOutlet>
-          <Redirect exact path="/" to="/home" />
-          <Route path="/home" render={() => <HomePage />} exact={true} />
-          <Route path="/form" render={() => <FormPage />} exact={true} />
-        </IonRouterOutlet>
+  <AppProvider>
+    <IonApp>
+      <IonReactRouter>
+        <IonTabs>
+          <IonRouterOutlet>
+            <Redirect exact path="/" to="/home" />
+            <Route path="/home" render={() => <HomePage />} exact={true} />
+            <Route path="/form" render={() => <FormPage />} exact={true} />
+          </IonRouterOutlet>
 
-        <IonTabBar slot="bottom">
-          <IonTabButton tab="home" href="/home">
-            <IonIcon icon={home} />
-            <IonLabel>Home</IonLabel>
-          </IonTabButton>
-
-          <IonTabButton tab="form" href="/form">
-            <IonIcon icon={documentTextOutline} />
-            <IonLabel>Form</IonLabel>
-          </IonTabButton>
-        </IonTabBar>
-      </IonTabs>
-    </IonReactRouter>
-  </IonApp>
+          <IonTabBar slot="bottom">
+            <IonTabButton tab="home" href="/home">
+              <IonIcon icon={home} />
+              <IonLabel>Home</IonLabel>
+            </IonTabButton>
+            <IonTabButton tab="form" href="/form">
+              <IonIcon icon={documentTextOutline} />
+              <IonLabel>Form</IonLabel>
+            </IonTabButton>
+          </IonTabBar>
+        </IonTabs>
+      </IonReactRouter>
+    </IonApp>
+  </AppProvider>
 );
 
 export default App;
