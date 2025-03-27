@@ -23,3 +23,11 @@
 ### Assignment 5
 
 > A basic Node.js + Express.js server that connects to a MongoDB database and implements CRUD operations for student schema.
+
+### Assignment 6
+
+> A simple Node.js server implementing JWT, RBAC, rate limiting and CORS, together with a simple ionic react app implementing firebase authentication.
+
+### Assignment 7
+
+> An ionic app connected to a backend server deployed on Render storing sensitive data securely using environment variables.

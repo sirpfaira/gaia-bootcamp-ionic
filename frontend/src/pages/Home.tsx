@@ -1,11 +1,15 @@
 import {
+  IonAvatar,
   IonButton,
+  IonCard,
+  IonCardContent,
+  IonChip,
   IonContent,
   IonHeader,
-  IonIcon,
+  IonImg,
   IonItem,
+  IonLabel,
   IonPage,
-  IonRow,
   IonText,
   IonTitle,
   IonToolbar,
@@ -14,82 +18,75 @@ import {
 import { Virtuoso } from "react-virtuoso";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { person } from "ionicons/icons";
-import { useHistory } from "react-router";
-import { signOut } from "firebase/auth";
-import { database } from "../config/firebase";
 
-type Comment = {
-  postId: number;
-  id: number;
-  name: string;
+
+interface User {
+  name: {
+    title: string;
+    first: string;
+    last: string;
+  };
+  picture: {
+    large: string;
+    medium: string;
+    thumbnail: string;
+  };
+  nat: string;
   email: string;
-  body: string;
-};
+}
 
 const HomePage = () => {
-  const history = useHistory();
   const [showToast] = useIonToast();
-  const [comments, setComments] = useState<Comment[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
 
   useEffect(() => {
-    async function fetchComments() {
+    async function fetchUsers() {
+      const apiUrl = import.meta.env.VITE_API_URL as string;
       await axios
-        .get("http://localhost:5000/comments")
+        .get(`${apiUrl}/users`)
         .then((response) => {
-          const data = response.data as Comment[];
-          setComments(data);
+          const data = response.data as User[];
+          setUsers(data);
         })
-        .catch((error) => console.error(error));
+        .catch(async (e) => {
+          await showToast({
+            message: e.error_description || e.message || e.code,
+            duration: 5000,
+          });
+        });
     }
-    fetchComments();
+    fetchUsers();
   }, []);
-  async function signOutUser() {
-    try {
-      await signOut(database);
-      localStorage.removeItem("firebase-token");
-      history.push("/login");
-    } catch (e: any) {
-      await showToast({
-        message: e.error_description || e.message || e.code,
-        duration: 5000,
-      });
-    }
-  }
+
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonRow className="ion-justify-content-between ion-no-padding">
-            <h5 className="ion-padding-horizontal">Hi User</h5>
-            <IonButton fill="clear" size="small" onClick={signOutUser}>
-              Logout
-            </IonButton>
-          </IonRow>
+          <IonTitle>Home</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent>
         <Virtuoso
           style={{ height: "100%" }}
-          totalCount={comments.length}
+          totalCount={users.length}
           itemContent={(index) => (
-            <IonItem key={comments[index].id}>
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  padding: "15px",
-                }}
-              >
-                <div style={{ display: "flex" }}>
-                  <IonIcon icon={person} color="primary" />
-                  <IonText color="secondary" style={{ marginLeft: "5px" }}>
-                    {comments[index].email}
-                  </IonText>
-                </div>
-                <IonText>{comments[index].body}</IonText>
-              </div>
-            </IonItem>
+            <IonCard key={index}>
+              <IonCardContent className="ion-no-padding">
+                <IonItem lines="none">
+                  <IonAvatar slot="start">
+                    <IonImg src={users[index].picture.large} />
+                  </IonAvatar>
+                  <IonLabel>
+                    {users[index].name.title} {users[index].name.first}
+                    {users[index].name.last}
+                    <p>{users[index].email}</p>
+                  </IonLabel>
+                  <IonChip slot="end" color="primary">
+                    {users[index].nat}
+                  </IonChip>
+                </IonItem>
+              </IonCardContent>
+            </IonCard>
           )}
         />
       </IonContent>
