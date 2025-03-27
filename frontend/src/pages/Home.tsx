@@ -1,94 +1,140 @@
 import {
-  IonAvatar,
   IonButton,
-  IonCard,
-  IonCardContent,
   IonChip,
   IonContent,
   IonHeader,
-  IonImg,
-  IonItem,
+  IonIcon,
+  IonInput,
   IonLabel,
   IonPage,
-  IonText,
+  IonRow,
   IonTitle,
   IonToolbar,
+  useIonLoading,
   useIonToast,
 } from "@ionic/react";
-import { Virtuoso } from "react-virtuoso";
+import { send } from "ionicons/icons";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
-
-interface User {
-  name: {
-    title: string;
-    first: string;
-    last: string;
-  };
-  picture: {
-    large: string;
-    medium: string;
-    thumbnail: string;
-  };
-  nat: string;
-  email: string;
+interface Message {
+  text: string;
+  me: boolean;
 }
 
-const HomePage = () => {
-  const [showToast] = useIonToast();
-  const [users, setUsers] = useState<User[]>([]);
+const MessageSchema = z.object({
+  message: z.string().min(2, "Message must contain at least 2 characters"),
+});
 
-  useEffect(() => {
-    async function fetchUsers() {
-      const apiUrl = import.meta.env.VITE_API_URL as string;
-      await axios
-        .get(`${apiUrl}/users`)
-        .then((response) => {
-          const data = response.data as User[];
-          setUsers(data);
-        })
-        .catch(async (e) => {
-          await showToast({
-            message: e.error_description || e.message || e.code,
-            duration: 5000,
-          });
+const HomePage = () => {
+  const { register, handleSubmit, reset } = useForm({
+    resolver: zodResolver(MessageSchema),
+  });
+  const [showToast] = useIonToast();
+  const [showLoading, hideLoading] = useIonLoading();
+  const [messages, setMessages] = useState<Message[]>([]);
+
+  async function sendMessage(formData: z.infer<typeof MessageSchema>) {
+    await showLoading();
+    const apiUrl = import.meta.env.VITE_API_URL as string;
+    await axios
+      .post(`${apiUrl}/chat`, formData)
+      .then((response) => {
+        const data = response.data as string;
+        setMessages([
+          ...messages,
+          { text: formData.message, me: true },
+          { text: data, me: false },
+        ]);
+        reset({ message: "" });
+      })
+      .catch(async (e) => {
+        await showToast({
+          message: e.error_description || e.message || e.code,
+          duration: 5000,
         });
-    }
-    fetchUsers();
-  }, []);
+      });
+    await hideLoading();
+  }
 
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Home</IonTitle>
+          <IonTitle>Chat With Gemini AI</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent>
-        <Virtuoso
-          style={{ height: "100%" }}
-          totalCount={users.length}
-          itemContent={(index) => (
-            <IonCard key={index}>
-              <IonCardContent className="ion-no-padding">
-                <IonItem lines="none">
-                  <IonAvatar slot="start">
-                    <IonImg src={users[index].picture.large} />
-                  </IonAvatar>
-                  <IonLabel>
-                    {users[index].name.title} {users[index].name.first}
-                    {users[index].name.last}
-                    <p>{users[index].email}</p>
-                  </IonLabel>
-                  <IonChip slot="end" color="primary">
-                    {users[index].nat}
-                  </IonChip>
-                </IonItem>
-              </IonCardContent>
-            </IonCard>
-          )}
-        />
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+            height: "100%",
+            width: "100%",
+          }}
+        >
+          <div
+            className="ion-padding"
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              flexGrow: 1,
+              overflowY: "auto",
+            }}
+          >
+            {messages.map((message, index) => (
+              <IonRow
+                key={index}
+                style={{
+                  display: "flex",
+                  width: "100%",
+                  justifyContent: message.me ? "flex-end" : "flex-start",
+                }}
+              >
+                <IonChip
+                  style={{
+                    margin: "10px",
+                    maxWidth: "80%",
+                    background: message.me ? "#007aff" : "#f4f4f4",
+                    color: message.me ? "#ffffff" : "#000000",
+                    alignSelf: message.me ? "flex-end" : "flex-start",
+                  }}
+                >
+                  <IonLabel>{message.text}</IonLabel>
+                </IonChip>
+              </IonRow>
+            ))}
+          </div>
+          <form onSubmit={handleSubmit(sendMessage)}>
+            <div
+              style={{
+                display: "flex",
+                bottom: 0,
+                background: "#ffffff",
+                padding: "10px 20px",
+                borderTop: "1px solid rgb(197, 198, 204)",
+              }}
+            >
+              <IonInput
+                fill="outline"
+                placeholder="Send message at least 2 chars..."
+                {...register("message")}
+              />
+              <IonButton
+                style={{
+                  margin: "0px 0 0 10px",
+                }}
+                type="submit"
+              >
+                <IonIcon icon={send}></IonIcon>
+              </IonButton>
+            </div>
+          </form>
+        </div>
       </IonContent>
     </IonPage>
   );

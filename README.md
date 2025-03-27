@@ -30,4 +30,8 @@
 
 ### Assignment 7
 
-> An ionic app connected to a backend server deployed on Render storing sensitive data securely using environment variables.
+> An Ionic app connected to a backend server deployed on Render storing sensitive data securely using environment variables.
+
+### Assignment 8
+
+> An Ionic AI-powered chatbot using Gemini AI text generation model.
